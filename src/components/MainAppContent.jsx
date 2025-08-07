@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo , forwardRef } from "react";
 import FilterPanel from "./FilterPanel";
 import MapView from "./MapView";
 import LandInfoCard from "./LandInfoCard";

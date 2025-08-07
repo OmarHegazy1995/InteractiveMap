@@ -3,13 +3,13 @@
   "version": "1.0.0",
   "type": "module",
   "private": true,
-  "homepage": "https://OmarHegazy1995.github.io/Interactive_Map",
+  "homepage": "https://OmarHegazy1995.github.io/InteractiveMap",
   "scripts": {
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
     "predeploy": "npm run build",
-     "deploy": "vite build && gh-pages -d dist"
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "file-saver": "^2.0.5",

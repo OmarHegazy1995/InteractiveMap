@@ -2,6 +2,8 @@ import React from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 
+
+
 const LandInfoCard = ({ selectedLand, isInsideFilter, isBelowMap }) => {
   if (!selectedLand) return null;
 

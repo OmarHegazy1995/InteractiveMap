@@ -1,5 +1,4 @@
-import React from "react";
-
+import React, { forwardRef } from "react";
 export default function LoginPage({ onEnter }) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden">

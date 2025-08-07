@@ -1,6 +1,8 @@
 import React from "react";
 import { BarChart, Bar, XAxis, YAxis, Tooltip, PieChart, Pie, Cell, Legend, ResponsiveContainer } from "recharts";
 
+
+
 const barColors = {
   factories: "#3B82F6",
   warehouses: "#F59E0B",
