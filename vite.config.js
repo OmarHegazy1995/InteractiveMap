@@ -3,9 +3,12 @@ import react from "@vitejs/plugin-react";
 
 export default defineConfig({
   plugins: [react()],
-  base: "/InteractiveMapArar/",
+  resolve: {
+    dedupe: ["react", "react-dom"],
+  },
+  base: "/Interactive_Map/",
   build: {
-    chunkSizeWarningLimit: 1000, // يرفع الحد للتحذير (مثلاً 1000 كيلوبايت)
+    chunkSizeWarningLimit: 1000,
     rollupOptions: {
       output: {
         manualChunks(id) {
@@ -20,4 +23,5 @@ export default defineConfig({
     },
   },
 });
+
 

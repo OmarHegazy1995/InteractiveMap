@@ -7,7 +7,7 @@ export default function LoginPage({ onEnter }) {
       <div
         className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-100"
         style={{
-          backgroundImage: "url('/4.png')",
+          backgroundImage: "url('4.png')",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
           backgroundSize: "contain",
@@ -20,10 +20,10 @@ export default function LoginPage({ onEnter }) {
         
         {/* الشعارات - موبايل */}
         <div className="flex md:hidden flex-wrap justify-center gap-4 mb-6">
-          <img src="/2.png" alt="أمانة الحدود الشمالية" className="w-32 object-contain" />
-          <img src="/3.png" alt="لوجو راية" className="w-28 object-contain" />
-          <img src="/4.png" alt="لوجو فرصة" className="w-28 object-contain" />
-          <img src="/5.png" alt="لوجو وزارة الإسكان" className="w-28 object-contain" />
+          <img src="2.png" alt="أمانة الحدود الشمالية" className="w-32 object-contain" />
+          <img src="3.png" alt="لوجو راية" className="w-28 object-contain" />
+          <img src="4.png" alt="لوجو فرصة" className="w-28 object-contain" />
+          <img src="5.png" alt="لوجو وزارة الإسكان" className="w-28 object-contain" />
         </div>
 
         {/* الشعارات - شاشات كبيرة */}
