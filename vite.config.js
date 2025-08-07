@@ -6,7 +6,7 @@ export default defineConfig({
   resolve: {
     dedupe: ["react", "react-dom"],
   },
-  base: "/InteractiveMap/",
+  base: "./",
   build: {
     chunkSizeWarningLimit: 1000,
     rollupOptions: {

@@ -1,4 +1,4 @@
-import React, { useEffect , forwardRef  } from "react";
+import React, { useEffect } from "react";
 
 import {
   MapContainer,
