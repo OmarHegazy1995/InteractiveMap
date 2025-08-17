@@ -1,4 +1,4 @@
-import React, { useState, useMemo , forwardRef } from "react";
+import React, { useState, useMemo } from "react";
 import FilterPanel from "./FilterPanel";
 import MapView from "./MapView";
 import LandInfoCard from "./LandInfoCard";
@@ -26,6 +26,7 @@ export default function MainAppContent() {
 
   const [selectedPlot, setSelectedPlot] = useState(null);
 
+  // تجميع كل القطع مع معلومات إضافية
   const allPlots = useMemo(() => {
     let plots = [];
     data.districts.forEach((district) => {
@@ -34,6 +35,7 @@ export default function MainAppContent() {
           plots.push({
             ...plot,
             neighborhood: district.name,
+            streetName: street.name,
             status: plot.invested
               ? "مستثمر"
               : plot.status === "قيد الطرح"
@@ -43,6 +45,7 @@ export default function MainAppContent() {
             facilityType: plot.facilityType || "",
             id: `${district.name}-${street.name}-${plot.number}`,
             image: plot.image || "/default-plot-image.jpg",
+            planNumber: plot.planNumber || "غير محدد",
           });
         });
       });
@@ -50,6 +53,7 @@ export default function MainAppContent() {
     return plots;
   }, []);
 
+  // تصفية القطع حسب الفلاتر
   const filteredPlots = useMemo(() => {
     return allPlots.filter((plot) => {
       const matchesNeighborhood =
@@ -212,7 +216,7 @@ export default function MainAppContent() {
             neighborhoods={neighborhoods}
           />
 
-          {/* كرت بيانات قطعة الأرض هنا داخل نفس إطار الفلتر في الشاشات الكبيرة */}
+          {/* كرت بيانات قطعة الأرض داخل الفلتر فقط لو الشاشة كبيرة */}
           <div className="hidden lg:block mt-4">
             {selectedPlot && (
               <LandInfoCard selectedLand={selectedPlot} isInsideFilter />
@@ -226,176 +230,187 @@ export default function MainAppContent() {
             className="flex-grow min-h-[300px] sm:min-h-[400px] lg:min-h-0"
             style={{ position: "relative" }}
           >
+            {/* نمرر الخريطة كل القطع لما مفيش فلتر */}
             <MapView
-              plots={filteredPlots}
+              plots={
+                filters.neighborhood ||
+                filters.investmentStatus ||
+                filters.projectType ||
+                filters.minArea ||
+                filters.maxArea
+                  ? filteredPlots
+                  : allPlots
+              }
               onSelectPlot={setSelectedPlot}
               selectedPlot={selectedPlot}
               currentNeighborhood={filters.neighborhood}
             />
           </section>
 
-          {/* كرت بيانات قطعة الأرض أسفل الخريطة في الشاشات الصغيرة  */}
-          <div className="lg:hidden">
-            {selectedPlot && (
-              <LandInfoCard selectedLand={selectedPlot} isBelowMap />
-            )}
-          </div>
+          {/* بيانات قطعة الأرض تظهر تحت الخريطة دائماً لو مختارة */}
+          {selectedPlot && (
+            <div className="w-full border-t border-gray-200 bg-gray-50 px-2 sm:px-4 py-4 flex justify-center">
+              <div className="flex flex-row-reverse items-start gap-3 w-full max-w-5xl flex-wrap sm:flex-nowrap bg-white rounded-xl p-3 shadow-inner">
+                <div className="relative w-full sm:w-1/3">
+                  {/* نص موقع قطعة الأرض فوق الصورة مع ضبط المحاذاة والظهور الكامل */}
+                  <div
+                    className="absolute top-0 right-0 bg-green-700 text-white text-center text-sm font-semibold px-3 py-1 rounded-bl-lg z-10 whitespace-normal"
+                    style={{
+                      Width: "a",
+                      whiteSpace: "normal",
+                      wordBreak: "break-word",
+                      paddingRight: "0.75rem",
+                      paddingLeft: "0.75rem",
+                    }}
+                  >
+                    موقع قطعة الأرض: {selectedPlot.neighborhood} -{" "}
+                    {selectedPlot.streetName}
+                  </div>
+                  <img
+                    src={selectedPlot.image}
+                    alt={`صورة قطعة الأرض رقم ${selectedPlot.number}`}
+                    className="w-full rounded-lg "
+                    style={{ maxHeight: "200px", width: "100%", height: "auto" }}
+                  />
+                </div>
+                <div className="flex flex-wrap gap-2 w-full sm:w-3/4">
+                  {[
+                    {
+                      label: "رقم القطعة",
+                      value: selectedPlot.number,
+                      bgColor: "#3B82F6",
+                    },
+                    {
+                      label: "رقم المخطط",
+                      value: selectedPlot.planNumber || "غير محدد",
+                      bgColor: "#22C55E",
+                    },
+                    {
+                      label: "الحي",
+                      value: selectedPlot.neighborhood,
+                      bgColor: "#10B981",
+                    },
+                    {
+                      label: "المساحة",
+                      value: `${selectedPlot.area} متر مربع`,
+                      bgColor: "#F59E0B",
+                    },
+                    {
+                      label: "حالة الاستثمار",
+                      value: selectedPlot.status,
+                      bgColor: "#EF4444",
+                    },
+                    {
+                      label: "نوع المشروع",
+                      value: selectedPlot.projectType || "غير محدد",
+                      bgColor: "#8B5CF6",
+                    },
+                    {
+                      label: "نوع المنشأة",
+                      value: selectedPlot.facilityType || "غير محدد",
+                      bgColor: "#0EA5E9",
+                    },
+                  ].map(({ label, value, bgColor }) => (
+                    <div
+                      key={label}
+                      className="flex flex-col rounded-md p-2 w-[47%] sm:w-[30%]"
+                      style={{
+                        minWidth: "140px",
+                        backgroundColor: bgColor,
+                        color: "white",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                      }}
+                    >
+                      <span className="text-xs mb-0.5 font-semibold">{label}</span>
+                      <span className="font-semibold text-sm">{value}</span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
-          {filters.neighborhood && (
+          {/* عرض الرسومات البيانية فقط لو الفلتر على الحي */}
+          {filters.neighborhood && !selectedPlot && (
             <div className="w-full border-t border-gray-200 bg-gray-50 px-2 sm:px-4 py-4 flex justify-center">
               <div className="flex flex-col md:flex-row gap-3 sm:gap-4 bg-white rounded-xl p-3 shadow-inner w-full max-w-5xl overflow-visible">
-                {selectedPlot ? (
-                  <div className="flex flex-row-reverse items-start gap-3 w-full flex-wrap sm:flex-nowrap">
-                    <img
-                      src={selectedPlot.image}
-                      alt={`صورة قطعة الأرض رقم ${selectedPlot.number}`}
-                      className="w-full sm:w-1/4 rounded-lg object-cover max-h-36 sm:max-h-32"
-                      style={{ maxWidth: "100%", height: "auto" }}
-                    />
-                    <div className="flex flex-wrap gap-2 w-full sm:w-3/4">
-                      {[
-                        {
-                          label: "رقم القطعة",
-                          value: selectedPlot.number,
-                          bgColor: "#3B82F6",
-                        },
-                        {
-                          label: "الحي",
-                          value: selectedPlot.neighborhood,
-                          bgColor: "#10B981",
-                        },
-                        {
-                          label: "المساحة",
-                          value: `${selectedPlot.area} متر مربع`,
-                          bgColor: "#F59E0B",
-                        },
-                        {
-                          label: "حالة الاستثمار",
-                          value: selectedPlot.status,
-                          bgColor: "#EF4444",
-                        },
-                        {
-                          label: "نوع المشروع",
-                          value: selectedPlot.projectType || "غير محدد",
-                          bgColor: "#8B5CF6",
-                        },
-                        {
-                          label: "نوع المنشأة",
-                          value: selectedPlot.facilityType || "غير محدد",
-                          bgColor: "#0EA5E9",
-                        },
-                        {
-                          label: "السعر",
-                          value: `${selectedPlot.price?.toLocaleString(
-                            "ar-EG"
-                          )} ريال`,
-                          bgColor: "#FACC15",
-                        },
-                      ].map(({ label, value, bgColor }) => (
+                <div className="w-full md:w-1/2">
+                  <h3 className="text-center font-semibold mb-2">
+                    توزيع أنواع المشاريع
+                  </h3>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <BarChart data={barChartData}>
+                      <XAxis dataKey="name" />
+                      <YAxis domain={[0, 10]} allowDecimals={false} />
+                      <Tooltip />
+                      <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                        {barChartData.map((entry, index) => (
+                          <Cell
+                            key={`cell-bar-${index}`}
+                            fill={barColors[entry.name] || "#8884d8"}
+                          />
+                        ))}
+                      </Bar>
+                    </BarChart>
+                  </ResponsiveContainer>
+
+                  <div className="flex justify-center gap-4 mt-3 flex-wrap">
+                    {barChartData.map((entry) => (
+                      <div
+                        key={entry.name}
+                        className="flex items-center gap-2 text-sm"
+                      >
                         <div
-                          key={label}
-                          className="flex flex-col rounded-md p-2 w-[47%] sm:w-[30%]"
-                          style={{
-                            minWidth: "140px",
-                            backgroundColor: bgColor,
-                            color: "white",
-                            boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
-                          }}
-                        >
-                          <span className="text-xs mb-0.5 font-semibold">
-                            {label}
-                          </span>
-                          <span className="font-semibold text-sm">{value}</span>
-                        </div>
-                      ))}
-                    </div>
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: barColors[entry.name] }}
+                        ></div>
+                        <span>
+                          {entry.name} ({entry.value})
+                        </span>
+                      </div>
+                    ))}
                   </div>
-                ) : (
-                  <>
-                    <div className="w-full md:w-1/2">
-                      <h3 className="text-center font-semibold mb-2">
-                        توزيع أنواع المشاريع
-                      </h3>
-                      <ResponsiveContainer width="100%" height={180}>
-                        <BarChart data={barChartData}>
-                          <XAxis dataKey="name" />
-                          <YAxis domain={[0, 10]} allowDecimals={false} />
-                          <Tooltip />
-                          <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                            {barChartData.map((entry, index) => (
-                              <Cell
-                                key={`cell-bar-${index}`}
-                                fill={barColors[entry.name] || "#8884d8"}
-                              />
-                            ))}
-                          </Bar>
-                        </BarChart>
-                      </ResponsiveContainer>
+                </div>
 
-                      <div className="flex justify-center gap-4 mt-3 flex-wrap">
-                        {barChartData.map((entry) => (
-                          <div
-                            key={entry.name}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <div
-                              className="w-4 h-4 rounded-full"
-                              style={{ backgroundColor: barColors[entry.name] }}
-                            ></div>
-                            <span>
-                              {entry.name} ({entry.value})
-                            </span>
-                          </div>
+                <div className="w-full md:w-1/2 flex flex-col items-center mt-6 md:mt-0">
+                  <h3 className="text-center font-semibold mb-2">حالة الاستثمار</h3>
+                  <ResponsiveContainer width="100%" height={180}>
+                    <PieChart>
+                      <Pie
+                        data={investmentStatusCounts}
+                        dataKey="value"
+                        nameKey="name"
+                        cx="50%"
+                        cy="50%"
+                        outerRadius={60}
+                        label={renderCustomizedLabel}
+                        labelLine={false}
+                      >
+                        {investmentStatusCounts.map((entry, index) => (
+                          <Cell key={`cell-${index}`} fill={COLORS[entry.name]} />
                         ))}
-                      </div>
-                    </div>
+                      </Pie>
+                      <Tooltip />
+                    </PieChart>
+                  </ResponsiveContainer>
 
-                    <div className="w-full md:w-1/2 flex flex-col items-center mt-6 md:mt-0">
-                      <h3 className="text-center font-semibold mb-2">
-                        حالة الاستثمار
-                      </h3>
-                      <ResponsiveContainer width="100%" height={180}>
-                        <PieChart>
-                          <Pie
-                            data={investmentStatusCounts}
-                            dataKey="value"
-                            nameKey="name"
-                            cx="50%"
-                            cy="50%"
-                            outerRadius={60}
-                            label={renderCustomizedLabel}
-                            labelLine={false}
-                          >
-                            {investmentStatusCounts.map((entry, index) => (
-                              <Cell
-                                key={`cell-${index}`}
-                                fill={COLORS[entry.name]}
-                              />
-                            ))}
-                          </Pie>
-                          <Tooltip />
-                        </PieChart>
-                      </ResponsiveContainer>
-
-                      <div className="flex justify-center mt-4 gap-4 flex-wrap">
-                        {investmentStatusCounts.map((entry) => (
-                          <div
-                            key={entry.name}
-                            className="flex items-center gap-2 text-sm"
-                          >
-                            <div
-                              className="w-4 h-4 rounded-full"
-                              style={{ backgroundColor: COLORS[entry.name] }}
-                            ></div>
-                            <span>
-                              {entry.name} ({entry.value})
-                            </span>
-                          </div>
-                        ))}
+                  <div className="flex justify-center mt-4 gap-4 flex-wrap">
+                    {investmentStatusCounts.map((entry) => (
+                      <div
+                        key={entry.name}
+                        className="flex items-center gap-2 text-sm"
+                      >
+                        <div
+                          className="w-4 h-4 rounded-full"
+                          style={{ backgroundColor: COLORS[entry.name] }}
+                        ></div>
+                        <span>
+                          {entry.name} ({entry.value})
+                        </span>
                       </div>
-                    </div>
-                  </>
-                )}
+                    ))}
+                  </div>
+                </div>
               </div>
             </div>
           )}
@@ -435,7 +450,7 @@ export default function MainAppContent() {
           <img
             src="2.png"
             alt="شعار أمانة"
-            className="h-12 sm:h-14 object-contain mb-5 mt-5"
+            className="h-12 sm:h-20 object-contain mb-5 mt-5 "
           />
           <img
             src="5.png"
@@ -443,7 +458,7 @@ export default function MainAppContent() {
             className="h-12 sm:h-14 object-contain mb-5 "
           />
           <img
-            src="1.png"
+            src="4.png"
             alt="شعار رواية"
             className="h-12 sm:h-14 object-contain mb-5 mt-5"
           />
@@ -453,7 +468,7 @@ export default function MainAppContent() {
             className="h-12 sm:h-14 object-contain mb-5 mt-5"
           />
           <img
-            src="4.png"
+            src="1.png"
             alt="شعار فرصة"
             className="h-12 sm:h-14 object-contain mb-5 mt-5"
           />

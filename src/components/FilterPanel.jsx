@@ -28,7 +28,7 @@ const FilterPanel = ({ filters, onFilterChange, onReset, neighborhoods }) => {
           <option value="">الكل</option>
           <option value="مستثمر">مستثمر</option>
           <option value="غير مستثمر">غير مستثمر</option>
-          <option value="تحت الإيجار">تحت الإيجار</option>
+          <option value="تحت الإجراء">تحت الإجراء</option>
         </select>
       </div>
 

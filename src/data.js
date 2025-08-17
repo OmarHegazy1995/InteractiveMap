@@ -8,6 +8,7 @@ export const data = {
           plots: [
             {
               number: "101",
+              planNumber: "5001",
               invested: true,
               area: 4200,
               coordinates: [
@@ -18,11 +19,11 @@ export const data = {
               ],
               projectType: "كبرى",
               facilityType: "مصنع",
-              price: 1300000,
               image: "100.jpg",
             },
             {
               number: "102",
+              planNumber: "5002",
               invested: false,
               area: 3500,
               coordinates: [
@@ -33,11 +34,11 @@ export const data = {
               ],
               projectType: "ناشئة",
               facilityType: "مستودع",
-              price: 900000,
               image: "100.jpg",
             },
             {
               number: "103",
+              planNumber: "5003",
               invested: false,
               area: 3800,
               coordinates: [
@@ -48,11 +49,11 @@ export const data = {
               ],
               projectType: "متوسطة",
               facilityType: "ورشة",
-              price: 1100000,
               image: "100.jpg",
             },
             {
               number: "106",
+              planNumber: "5004",
               invested: true,
               area: 4500,
               coordinates: [
@@ -63,11 +64,11 @@ export const data = {
               ],
               projectType: "كبرى",
               facilityType: "مصنع",
-              price: 1350000,
               image: "100.jpg",
             },
             {
               number: "107",
+              planNumber: "5005",
               invested: false,
               area: 3100,
               coordinates: [
@@ -78,7 +79,6 @@ export const data = {
               ],
               projectType: "متوسطة",
               facilityType: "مستودع",
-              price: 1000000,
               image: "100.jpg",
             },
           ],
@@ -88,6 +88,7 @@ export const data = {
           plots: [
             {
               number: "104",
+              planNumber: "5006",
               invested: false,
               area: 5200,
               coordinates: [
@@ -98,11 +99,11 @@ export const data = {
               ],
               projectType: "متوسطة",
               facilityType: "",
-              price: 1500000,
               image: "100.jpg",
             },
             {
               number: "108",
+              planNumber: "5007",
               invested: true,
               area: 3500,
               coordinates: [
@@ -113,11 +114,11 @@ export const data = {
               ],
               projectType: "ناشئة",
               facilityType: "ورشة",
-              price: 900000,
               image: "100.jpg",
             },
             {
               number: "109",
+              planNumber: "5008",
               invested: false,
               area: 4100,
               coordinates: [
@@ -128,7 +129,6 @@ export const data = {
               ],
               projectType: "كبرى",
               facilityType: "مستودع",
-              price: 1600000,
               image: "100.jpg",
             },
           ],
@@ -143,6 +143,7 @@ export const data = {
           plots: [
             {
               number: "201",
+              planNumber: "6001",
               invested: false,
               area: 4000,
               coordinates: [
@@ -153,11 +154,11 @@ export const data = {
               ],
               projectType: "متوسطة",
               facilityType: "ورشة",
-              price: 950000,
               image: "100.jpg",
             },
             {
               number: "202",
+              planNumber: "6002",
               invested: true,
               area: 4600,
               coordinates: [
@@ -168,7 +169,6 @@ export const data = {
               ],
               projectType: "كبرى",
               facilityType: "مصنع",
-              price: 1450000,
               image: "100.jpg",
             },
           ],
@@ -183,6 +183,7 @@ export const data = {
           plots: [
             {
               number: "301",
+              planNumber: "7001",
               invested: true,
               area: 3700,
               coordinates: [
@@ -193,11 +194,11 @@ export const data = {
               ],
               projectType: "ناشئة",
               facilityType: "ورشة",
-              price: 980000,
               image: "100.jpg",
             },
             {
               number: "302",
+              planNumber: "7002",
               invested: false,
               area: 3300,
               coordinates: [
@@ -208,7 +209,6 @@ export const data = {
               ],
               projectType: "متوسطة",
               facilityType: "مستودع",
-              price: 890000,
               image: "100.jpg",
             },
           ],
@@ -223,6 +223,7 @@ export const data = {
           plots: [
             {
               number: "401",
+              planNumber: "8001",
               invested: true,
               area: 5000,
               coordinates: [
@@ -233,11 +234,11 @@ export const data = {
               ],
               projectType: "كبرى",
               facilityType: "مصنع",
-              price: 1550000,
               image: "100.jpg",
             },
             {
               number: "402",
+              planNumber: "8002",
               invested: false,
               area: 3400,
               coordinates: [
@@ -248,7 +249,6 @@ export const data = {
               ],
               projectType: "ناشئة",
               facilityType: "ورشة",
-              price: 870000,
               image: "100.jpg",
             },
           ],
@@ -263,6 +263,7 @@ export const data = {
           plots: [
             {
               number: "501",
+              planNumber: "9001",
               invested: true,
               area: 4400,
               coordinates: [
@@ -273,11 +274,11 @@ export const data = {
               ],
               projectType: "مشاريع الخصخصة",
               facilityType: "مستودع",
-              price: 1200000,
               image: "100.jpg",
             },
             {
               number: "502",
+              planNumber: "9002",
               invested: false,
               area: 3600,
               coordinates: [
@@ -288,7 +289,6 @@ export const data = {
               ],
               projectType: "كبرى",
               facilityType: "مصنع",
-              price: 1400000,
               image: "100.jpg",
             },
           ],
@@ -303,6 +303,7 @@ export const data = {
           plots: [
             {
               number: "601",
+              planNumber: "10001",
               invested: true,
               area: 3900,
               coordinates: [
@@ -313,11 +314,11 @@ export const data = {
               ],
               projectType: "ناشئة",
               facilityType: "ورشة",
-              price: 920000,
               image: "100.jpg",
             },
             {
               number: "602",
+              planNumber: "10002",
               invested: false,
               area: 3100,
               coordinates: [
@@ -328,7 +329,6 @@ export const data = {
               ],
               projectType: "متوسطة",
               facilityType: "مستودع",
-              price: 880000,
               image: "100.jpg",
             },
           ],

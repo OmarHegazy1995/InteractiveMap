@@ -132,22 +132,20 @@ export default function MapView({
                     <strong>الحي:</strong> {plot.neighborhood}
                   </p>
                   <p>
+                    <strong>رقم المخطط:</strong> {plot.planNumber || "غير محدد"}
+                  </p>
+                  <p>
                     <strong>القطعة:</strong> {plot.number}
                   </p>
                   <p>
                     <strong>المساحة:</strong> {plot.area} م²
                   </p>
                   <p>
-                    <strong>السعر:</strong>{" "}
-                    {plot.price
-                      ? plot.price.toLocaleString() + " ريال"
-                      : "غير محدد"}
+                    <strong>حالة الاستثمار:</strong>{" "}
+                    {plot.status || "غير محدد"}
                   </p>
                   <p>
-                    <strong>الحالة:</strong> {plot.status}
-                  </p>
-                  <p>
-                    <strong>نوع المشروع:</strong> {plot.projectType}
+                    <strong>نوع المشروع:</strong> {plot.projectType || "غير محدد"}
                   </p>
                 </div>
               </Popup>
