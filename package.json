@@ -8,9 +8,7 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "predeploy": "npm run build",
-    "deploy": "rm -rf dist && vite build && git add -f dist && git commit -m 'Update production build' && git push origin gh-pages"
-
+    "deploy": "gh-pages -d dist"
   },
   "dependencies": {
     "file-saver": "^2.0.5",
