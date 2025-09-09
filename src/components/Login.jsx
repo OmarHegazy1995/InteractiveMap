@@ -1,24 +1,24 @@
-import React, { forwardRef } from "react";
+import React from "react";
+
 export default function LoginPage({ onEnter }) {
   return (
     <div className="min-h-screen bg-gray-100 flex flex-col items-center justify-center px-4 py-6 relative overflow-hidden">
       {/* خلفية */}
       <div
-        className="absolute inset-0 flex items-center justify-center pointer-events-none opacity-100"
+        className="absolute inset-0 pointer-events-none z-0"
         style={{
-          backgroundImage: "url('4.png')",
+          backgroundImage: "url('22.jpg')",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          backgroundSize: "contain",
-          zIndex: 0,
+          backgroundSize: "100% 100%",
         }}
       ></div>
 
       {/* المحتوى */}
-      <div className="relative z-10 max-w-6xl w-full bg-white rounded-3xl shadow-2xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-10">
+      <div className="relative z-10 max-w-6xl w-full bg-white/50 rounded-3xl shadow-2xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-10">
         
         {/* الشعارات - موبايل */}
-        <div className="flex md:hidden flex-wrap justify-center gap-4 mb-6">
+        <div className="flex md:hidden flex-wrap justify-center gap-4 mb-6 relative z-30">
           <img src="2.png" alt="أمانة الحدود الشمالية" className="w-32 object-contain" />
           <img src="3.png" alt="لوجو راية" className="w-28 object-contain" />
           <img src="4.png" alt="لوجو فرصة" className="w-28 object-contain" />
@@ -26,15 +26,14 @@ export default function LoginPage({ onEnter }) {
         </div>
 
         {/* الشعارات - شاشات كبيرة */}
-        <div className="hidden md:flex flex-col gap-8 md:flex-row md:gap-12 md:flex-1 items-center justify-center">
-          <img src="2.png" alt="أمانة الحدود الشمالية" className="h-20 object-contain" />
-          <img src="3.png" alt="لوجو راية" className="h-16 object-contain" />
-          <img src="4.png" alt="لوجو فرصة" className="h-16 object-contain" />
-          <img src="5.png" alt="لوجو وزارة الإسكان" className="h-16 object-contain" />
-        </div>
-
+        <div className="hidden md:flex flex-col gap-8 md:flex-row md:gap-12 md:flex-1 items-center justify-center relative z-30">
+  <img src="2.png" alt="أمانة الحدود الشمالية" className="h-28 object-contain" />  {/* كانت h-20 */}
+  <img src="4.png" alt="لوجو راية" className="h-20 object-contain" />              {/* كانت h-16 */}
+  <img src="3.png" alt="لوجو فرصة" className="h-20 object-contain" />              {/* كانت h-16 */}
+  <img src="5.png" alt="لوجو وزارة الإسكان" className="h-20 object-contain" />      {/* كانت h-16 */}
+</div>
         {/* خريطة وزر الدخول */}
-        <div className="flex flex-col md:flex-1 items-center justify-between h-full max-w-md">
+        <div className="flex flex-col md:flex-1 items-center justify-between h-full max-w-md relative z-20">
           <img src="map.png" alt="صورة الخريطة" className="w-full max-h-64 object-contain mb-4" />
           <img src="1.png" alt="لوجو الاستشاري" className="w-36 object-contain mb-6" />
 

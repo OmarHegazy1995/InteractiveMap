@@ -1,164 +1,263 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef, useState } from "react";
+import mapboxgl from "mapbox-gl";
+import "mapbox-gl/dist/mapbox-gl.css";
+import LandInfoCard from "./LandInfoCard";
 
-import {
-  MapContainer,
-  TileLayer,
-  Polygon,
-  Popup,
-  useMap,
-} from "react-leaflet";
-import "leaflet/dist/leaflet.css";
-import L from "leaflet";
+mapboxgl.accessToken =
+  "pk.eyJ1Ijoib21hci1oZWdhenkxMjMiLCJhIjoiY21mMHV1OTIyMGtxNjJrc2Jrc3ptd3hyeSJ9.0DL-T3mWdUhrcfOaRKenNA";
 
-import iconRetinaUrl from "leaflet/dist/images/marker-icon-2x.png";
-import iconUrl from "leaflet/dist/images/marker-icon.png";
-import shadowUrl from "leaflet/dist/images/marker-shadow.png";
+export default function MapView({ plots, onSelectPlot, selectedPlot, use3D }) {
+  const mapContainer = useRef(null);
+  const mapRef = useRef(null);
+  const geojsonRef = useRef(null);
+  const [plotsLoaded, setPlotsLoaded] = useState(false);
+  const [isZoomedOnPlot, setIsZoomedOnPlot] = useState(false);
 
-delete L.Icon.Default.prototype._getIconUrl;
-L.Icon.Default.mergeOptions({
-  iconRetinaUrl,
-  iconUrl,
-  shadowUrl,
-});
-
-// مكون لضبط الزوم حسب الحالة
-function MapBounds({ plots, selectedPlot, currentNeighborhood }) {
-  const map = useMap();
-
-  useEffect(() => {
-    if (selectedPlot) {
-      // زوم على قطعة الأرض المختارة فقط مع padding مناسب
-      const bounds = L.latLngBounds(selectedPlot.coordinates);
-      map.fitBounds(bounds, { padding: [40, 40] });
-    } else if (currentNeighborhood && plots.length > 0) {
-      // زوم على كل قطع الحي الحالي (الفلترة تمرر فقط قطع الحي)
-      const allCoordinates = plots.flatMap((plot) => plot.coordinates);
-
-      // حساب حدود الإحداثيات
-      let bounds = L.latLngBounds(allCoordinates);
-
-      // إضافة شرط: إذا كانت الحدود صغيرة (مساحة صغيرة)، نوسعها قليلاً لتجنب زوم كبير 
-      const southWest = bounds.getSouthWest();
-      const northEast = bounds.getNorthEast();
-
-      const latDiff = Math.abs(northEast.lat - southWest.lat);
-      const lngDiff = Math.abs(northEast.lng - southWest.lng);
-
-      // لو الفرق صغير ، نزيد حدود اليدوياً (مثلاً 0.01 درجة)
-      const minDiff = 0.01;
-      if (latDiff < minDiff || lngDiff < minDiff) {
-        const paddingLat = Math.max(minDiff - latDiff, 0);
-        const paddingLng = Math.max(minDiff - lngDiff, 0);
-
-        const newSouthWest = L.latLng(southWest.lat - paddingLat, southWest.lng - paddingLng);
-        const newNorthEast = L.latLng(northEast.lat + paddingLat, northEast.lng + paddingLng);
-
-        bounds = L.latLngBounds(newSouthWest, newNorthEast);
-      }
-
-      map.fitBounds(bounds, { padding: [40, 40] });
-    } else if (plots.length > 0) {
-      // زوم على كل القطع المعروضة (الكل)
-      const allCoordinates = plots.flatMap((plot) => plot.coordinates);
-      const bounds = L.latLngBounds(allCoordinates);
-      map.fitBounds(bounds, { padding: [20, 20] });
+  const addPlotsLayers = (map) => {
+    if (!map.getSource("plots")) {
+      map.addSource("plots", {
+        type: "geojson",
+        data: { type: "FeatureCollection", features: [] },
+      });
     }
-  }, [plots, selectedPlot, currentNeighborhood, map]);
 
-  return null;
-}
+    if (!map.getLayer("plots-fill")) {
+      map.addLayer({
+        id: "plots-fill",
+        type: "fill-extrusion",
+        source: "plots",
+        paint: {
+          "fill-extrusion-color": ["get", "color"],
+          "fill-extrusion-height": use3D ? ["get", "height"] : 0,
+          "fill-extrusion-opacity": 0.6,
+        },
+      });
+    }
 
-export default function MapView({
-  plots,
-  onSelectPlot,
-  selectedPlot,
-  currentNeighborhood,
-}) {
-  const center = [30.986, 41.038]; // مركز عرعر
+    if (!map.getLayer("plots-outline")) {
+      map.addLayer({
+        id: "plots-outline",
+        type: "line",
+        source: "plots",
+        paint: {
+          "line-color": "#000",
+          "line-width": 1,
+        },
+      });
+    }
 
-  const handleMarkerClick = (plot) => {
-    if (onSelectPlot) onSelectPlot(plot);
+    if (geojsonRef.current && map.getSource("plots")) {
+      map.getSource("plots").setData(geojsonRef.current);
+    }
   };
 
-  // إذا في قطعة مختارة، نعرضها فقط
-  const visiblePlots = selectedPlot ? [selectedPlot] : plots;
+  useEffect(() => {
+    if (mapRef.current) return;
+
+    const map = new mapboxgl.Map({
+      container: mapContainer.current,
+      style: "mapbox://styles/mapbox/streets-v12",
+      center: [0, 0],
+      zoom: 1.2,
+      pitch: 0,
+      bearing: 0,
+      antialias: true,
+    });
+
+    mapRef.current = map;
+
+    map.on("load", () => {
+      map.addSource("satellite", {
+        type: "raster",
+        url: "mapbox://mapbox.satellite",
+        tileSize: 256,
+      });
+
+      map.addLayer(
+        {
+          id: "satellite-layer",
+          type: "raster",
+          source: "satellite",
+          layout: { visibility: "none" },
+        },
+        "waterway-label"
+      );
+
+      addPlotsLayers(map);
+      setPlotsLoaded(true);
+
+      if (plots && plots.length) {
+        const allCoords = plots
+          .flatMap((p) => p.coordinates)
+          .map((c) => (Array.isArray(c[0]) ? c : [c]))
+          .flat()
+          .filter(([lat, lng]) => !isNaN(lat) && !isNaN(lng))
+          .map(([lat, lng]) => [lng, lat]);
+
+        if (allCoords.length) {
+          const bounds = allCoords.reduce(
+            (b, coord) => b.extend(coord),
+            new mapboxgl.LngLatBounds(allCoords[0], allCoords[0])
+          );
+          map.fitBounds(bounds, { padding: 40 });
+        }
+      }
+    });
+
+    map.on("zoom", () => {
+      if (isZoomedOnPlot) return;
+      const zoom = map.getZoom();
+      if (zoom >= 15) map.setLayoutProperty("satellite-layer", "visibility", "visible");
+      else map.setLayoutProperty("satellite-layer", "visibility", "none");
+    });
+  }, [plots, isZoomedOnPlot]);
+
+  useEffect(() => {
+    if (!mapRef.current || !plotsLoaded || !plots) return;
+    const map = mapRef.current;
+
+    const geojson = {
+      type: "FeatureCollection",
+      features: plots.map((plot) => {
+        const color =
+          plot.status === "مستثمر"
+            ? "red"
+            : plot.status === "قيد الطرح"
+            ? "orange"
+            : "green";
+        const height = selectedPlot?.id === plot.id ? 50 : 20;
+
+        return {
+          type: "Feature",
+          geometry: {
+            type: "Polygon",
+            coordinates: [plot.coordinates.map(([lat, lng]) => [lng, lat])],
+          },
+          properties: { ...plot, color, height },
+        };
+      }),
+    };
+
+    geojsonRef.current = geojson;
+
+    if (map.getSource("plots")) map.getSource("plots").setData(geojson);
+
+    if (selectedPlot && selectedPlot.coordinates.length > 0) {
+      try {
+        const coordsArray = Array.isArray(selectedPlot.coordinates[0][0])
+          ? selectedPlot.coordinates
+          : [selectedPlot.coordinates];
+
+        const validCoords = coordsArray.flat().filter(([lat, lng]) => !isNaN(lat) && !isNaN(lng));
+
+        if (validCoords.length) {
+          const lats = validCoords.map(([lat]) => lat);
+          const lngs = validCoords.map(([, lng]) => lng);
+          const centerLat = (Math.min(...lats) + Math.max(...lats)) / 2;
+          const centerLng = (Math.min(...lngs) + Math.max(...lngs)) / 2;
+
+          map.easeTo({
+            center: [centerLng, centerLat],
+            zoom: 18,
+            duration: 1200,
+          });
+
+          map.setLayoutProperty("satellite-layer", "visibility", "visible");
+          setIsZoomedOnPlot(true);
+        }
+      } catch (err) {
+        console.error("Invalid coordinates for selected plot:", err);
+      }
+    } else {
+      const allCoords = plots
+        .flatMap((p) => p.coordinates)
+        .map((c) => (Array.isArray(c[0]) ? c : [c]))
+        .flat()
+        .filter(([lat, lng]) => !isNaN(lat) && !isNaN(lng))
+        .map(([lat, lng]) => [lng, lat]);
+
+      if (allCoords.length) {
+        const bounds = allCoords.reduce(
+          (b, coord) => b.extend(coord),
+          new mapboxgl.LngLatBounds(allCoords[0], allCoords[0])
+        );
+        map.fitBounds(bounds, { padding: 40 });
+
+        map.setLayoutProperty("satellite-layer", "visibility", "none");
+        setIsZoomedOnPlot(false);
+      }
+    }
+  }, [plots, selectedPlot, plotsLoaded, use3D]);
+
+  useEffect(() => {
+    if (!mapRef.current) return;
+    const map = mapRef.current;
+
+    const handleClick = (e) => {
+      const features = map.queryRenderedFeatures(e.point, { layers: ["plots-fill"] });
+      if (features.length) {
+        const clickedId = features[0].properties.id;
+        const plot = plots.find((p) => p.id === clickedId);
+        if (plot) onSelectPlot && onSelectPlot(plot);
+      }
+    };
+
+    map.on("click", handleClick);
+    return () => map.off("click", handleClick);
+  }, [onSelectPlot, plots]);
+
+  const resetNorth = () => {
+    if (!mapRef.current) return;
+    mapRef.current.easeTo({ bearing: 0, pitch: 0, duration: 1000 });
+  };
 
   return (
-    <div className="w-full h-full rounded-lg overflow-hidden shadow-lg">
-      <MapContainer
-        center={center}
-        zoom={13}
-        scrollWheelZoom={true}
-        className="w-full h-full"
-      >
-        <TileLayer
-          attribution='&copy; <a href="http://osm.org/copyright">OpenStreetMap</a> contributors'
-          url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-        />
+    <div className="relative w-full h-full rounded-lg overflow-hidden shadow-lg">
+      <div ref={mapContainer} className="w-full h-full" />
 
-        {visiblePlots.length === 0 && (
-          <div className="absolute top-0 left-0 w-full h-full flex items-center justify-center pointer-events-none z-50 bg-white bg-opacity-70 text-gray-700 font-semibold">
-            لا توجد قطع أراضي مطابقة للفلترة الحالية.
-          </div>
-        )}
+      {/* أيقونات التكبير والتصغير في إطار مربع والبوصلة مستقلة */}
+      <div className="absolute top-4 left-4 flex flex-col gap-3 z-10">
+        {/* إطار مربع للتكبير والتصغير */}
+        <div className="bg-gray-100 backdrop-blur-sm rounded-lg shadow-md flex flex-col border border-gray-200">
+          <button
+            onClick={() => mapRef.current && mapRef.current.zoomIn({ duration: 500 })}
+            className="w-12 h-12 flex items-center justify-center text-gray-800 hover:text-blue-600 transition duration-200 border-b border-gray-200"
+            title="Zoom In"
+          >
+            +
+          </button>
+          <button
+            onClick={() => mapRef.current && mapRef.current.zoomOut({ duration: 500 })}
+            className="w-12 h-12 flex items-center justify-center text-gray-800 hover:text-blue-600 transition duration-200"
+            title="Zoom Out"
+          >
+            -
+          </button>
+        </div>
 
-        {visiblePlots.map((plot) => {
-          const latlngs = plot.coordinates.map(([lat, lng]) => [lat, lng]);
-
-          const color =
-            plot.status === "مستثمر"
-              ? "red"
-              : plot.status === "تحت الإيجار"
-              ? "orange"
-              : "green";
-
-          return (
-            <Polygon
-              key={plot.id}
-              positions={latlngs}
-              pathOptions={{
-                color,
-                fillColor: color,
-                fillOpacity: selectedPlot?.id === plot.id ? 0.6 : 0.3,
-                weight: selectedPlot?.id === plot.id ? 4 : 2,
-              }}
-              eventHandlers={{
-                click: () => handleMarkerClick(plot),
-              }}
+        {/* أيقونة البوصلة */}
+        <div className="bg-white/90 backdrop-blur-sm rounded-full shadow-md border border-gray-200">
+          <button
+            onClick={resetNorth}
+            className="w-12 h-12 flex items-center justify-center text-gray-800 hover:text-blue-600 transition duration-200"
+            title="Reset North"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              viewBox="0 0 100 100"
+              className="w-6 h-6"
+              stroke="currentColor"
+              fill="none"
+              strokeWidth="2"
             >
-              <Popup dir="rtl" onClose={() => onSelectPlot(null)}>
-                <div className="text-sm font-medium">
-                  <p>
-                    <strong>الحي:</strong> {plot.neighborhood}
-                  </p>
-                  <p>
-                    <strong>رقم المخطط:</strong> {plot.planNumber || "غير محدد"}
-                  </p>
-                  <p>
-                    <strong>القطعة:</strong> {plot.number}
-                  </p>
-                  <p>
-                    <strong>المساحة:</strong> {plot.area} م²
-                  </p>
-                  <p>
-                    <strong>حالة الاستثمار:</strong>{" "}
-                    {plot.status || "غير محدد"}
-                  </p>
-                  <p>
-                    <strong>نوع المشروع:</strong> {plot.projectType || "غير محدد"}
-                  </p>
-                </div>
-              </Popup>
-            </Polygon>
-          );
-        })}
+              <circle cx="50" cy="50" r="48" />
+              <polygon points="50,10 58,50 50,45 42,50" fill="currentColor"/>
+            </svg>
+          </button>
+        </div>
+      </div>
 
-        <MapBounds
-          plots={plots}
-          selectedPlot={selectedPlot}
-          currentNeighborhood={currentNeighborhood}
-        />
-      </MapContainer>
+      {selectedPlot && <LandInfoCard selectedLand={selectedPlot} />}
     </div>
   );
 }
