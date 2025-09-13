@@ -7,35 +7,36 @@ export default function LoginPage({ onEnter }) {
       <div
         className="absolute inset-0 pointer-events-none z-0"
         style={{
-          backgroundImage: "url('22.jpg')",
+          backgroundImage: "url('/InteractiveMap/22.jpg')",
           backgroundRepeat: "no-repeat",
           backgroundPosition: "center",
-          backgroundSize: "100% 100%",
+          backgroundSize: "cover", // بدل 100% 100% عشان ما تتشوهش
         }}
       ></div>
 
       {/* المحتوى */}
-      <div className="relative z-10 max-w-6xl w-full bg-white/50 rounded-3xl shadow-2xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-10">
+      <div className="relative z-10 w-full max-w-5xl bg-white/50 rounded-3xl shadow-2xl p-6 md:p-10 flex flex-col md:flex-row items-center gap-6 md:gap-10">
         
         {/* الشعارات - موبايل */}
-        <div className="flex md:hidden flex-wrap justify-center gap-4 mb-6 relative z-30">
-          <img src="2.png" alt="أمانة الحدود الشمالية" className="w-32 object-contain" />
-          <img src="3.png" alt="لوجو راية" className="w-28 object-contain" />
-          <img src="4.png" alt="لوجو فرصة" className="w-28 object-contain" />
-          <img src="5.png" alt="لوجو وزارة الإسكان" className="w-28 object-contain" />
+        <div className="flex md:hidden flex-wrap justify-center gap-4 mb-6">
+          <img src="/InteractiveMap/2.png" alt="أمانة الحدود الشمالية" className="w-1/3 max-w-[100px] object-contain" />
+          <img src="/InteractiveMap/3.png" alt="لوجو راية" className="w-1/4 max-w-[90px] object-contain" />
+          <img src="/InteractiveMap/4.png" alt="لوجو فرصة" className="w-1/4 max-w-[90px] object-contain" />
+          <img src="/InteractiveMap/5.png" alt="لوجو وزارة الإسكان" className="w-1/4 max-w-[90px] object-contain" />
         </div>
 
         {/* الشعارات - شاشات كبيرة */}
-        <div className="hidden md:flex flex-col gap-8 md:flex-row md:gap-12 md:flex-1 items-center justify-center relative z-30">
-  <img src="2.png" alt="أمانة الحدود الشمالية" className="h-28 object-contain" />  {/* كانت h-20 */}
-  <img src="4.png" alt="لوجو راية" className="h-20 object-contain" />              {/* كانت h-16 */}
-  <img src="3.png" alt="لوجو فرصة" className="h-20 object-contain" />              {/* كانت h-16 */}
-  <img src="5.png" alt="لوجو وزارة الإسكان" className="h-20 object-contain" />      {/* كانت h-16 */}
-</div>
+        <div className="hidden md:flex flex-wrap md:flex-row md:gap-12 flex-1 items-center justify-center">
+          <img src="/InteractiveMap/2.png" alt="أمانة الحدود الشمالية" className="h-28 object-contain" />
+          <img src="/InteractiveMap/4.png" alt="لوجو راية" className="h-20 object-contain" />
+          <img src="/InteractiveMap/3.png" alt="لوجو فرصة" className="h-20 object-contain" />
+          <img src="/InteractiveMap/5.png" alt="لوجو وزارة الإسكان" className="h-20 object-contain" />
+        </div>
+
         {/* خريطة وزر الدخول */}
-        <div className="flex flex-col md:flex-1 items-center justify-between h-full max-w-md relative z-20">
-          <img src="map.png" alt="صورة الخريطة" className="w-full max-h-64 object-contain mb-4" />
-          <img src="1.png" alt="لوجو الاستشاري" className="w-36 object-contain mb-6" />
+        <div className="flex flex-col md:flex-1 items-center justify-center w-full max-w-md">
+          <img src="/InteractiveMap/map.png" alt="صورة الخريطة" className="w-full h-auto max-h-64 object-contain mb-4" />
+          <img src="/InteractiveMap/1.png" alt="لوجو الاستشاري" className="w-2/3 max-w-[150px] object-contain mb-6" />
 
           <button
             onClick={onEnter}

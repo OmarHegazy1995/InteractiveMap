@@ -283,7 +283,7 @@ export default function MapView({ plots, onSelectPlot, selectedPlot, use3D }) {
       </div>
 
       {/* زر الطبقات */}
-      <div className="absolute bottom-7 left-4 z-10 flex items-center gap-2">
+      <div className="absolute bottom-7 left-4 z-10 flex items-center gap-2 flex-col md:flex-row">
         <div className="bg-white/90 backdrop-blur-sm rounded-md shadow-xl border-2 border-gray-600 overflow-hidden w-24 h-24 relative">
           <button
             onClick={() => setShowLayers(!showLayers)}
@@ -303,7 +303,7 @@ export default function MapView({ plots, onSelectPlot, selectedPlot, use3D }) {
           </button>
         </div>
         {showLayers && (
-          <div className="absolute bottom-0 left-28 bg-white/30 backdrop-blur-md rounded-lg shadow-2xl border border-gray-300 p-2 flex flex-row gap-2">
+          <div className="absolute md:bottom-0 md:left-28 bottom-full mb-2 flex md:flex-row flex-col gap-2 bg-white/90 backdrop-blur-md rounded-lg shadow-2xl border border-gray-300 p-2">
             {layers.map((layer, i) => (
               <button
                 key={i}

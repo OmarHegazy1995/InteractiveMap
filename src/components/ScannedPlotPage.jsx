@@ -12,8 +12,8 @@ export default function ScannedPlotPage({ plot }) {
 
   if (!plot) {
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-gray-100">
-        <h2 className="text-2xl font-semibold text-green-900 mb-6">
+      <div className="flex flex-col items-center justify-center h-screen bg-gray-100 p-4">
+        <h2 className="text-2xl font-semibold text-green-900 mb-6 text-center">
           لا توجد بيانات لعرضها
         </h2>
         <button
@@ -49,7 +49,7 @@ export default function ScannedPlotPage({ plot }) {
     { label: "الحالة", value: getStatusText(), colored: true },
     { label: "المساحة (م²)", value: plot.area },
     { label: "نوع المشروع", value: plot.ACTIV || plot.projectType },
-    { label: "النشاط الرئيسي", value: plot.main_activ ||  plot.facilityType },
+    { label: "النشاط الرئيسي", value: plot.main_activ || plot.facilityType },
     { label: "الإيجار", value: plot.invested ? "مؤجر" : "غير مؤجر", colored: true },
     {
       label: "الإحداثيات",
@@ -95,7 +95,7 @@ export default function ScannedPlotPage({ plot }) {
   };
 
   return (
-    <div className="h-screen w-screen flex items-center justify-center bg-gray-100 p-4 relative">
+    <div className="h-screen w-screen flex items-center justify-center bg-gray-100 p-2 md:p-4 overflow-y-auto">
       {/* Spinner تحميل */}
       {!imgLoaded && (
         <div className="absolute flex items-center justify-center inset-0 bg-gray-100/80 z-50">
@@ -106,47 +106,47 @@ export default function ScannedPlotPage({ plot }) {
       {/* Overlay لتكبير الصورة */}
       {zoomed && (
         <div
-          className="fixed inset-0 bg-black/70 flex items-center justify-center z-50 cursor-zoom-out transition-opacity duration-300"
+          className="fixed inset-0 bg-black/80 flex items-center justify-center z-50 cursor-zoom-out overflow-auto p-4"
           onClick={() => setZoomed(false)}
         >
           <img
             src={plotImage}
             alt="صورة مكبرة"
-            className="max-h-[90%] max-w-[90%] object-contain rounded-lg shadow-lg transform scale-100 animate-scaleIn"
+            className="max-h-[95%] max-w-[95%] object-contain rounded-lg shadow-lg animate-scaleIn"
           />
         </div>
       )}
 
       <div
         ref={contentRef}
-        className={`w-full max-w-4xl bg-white rounded-2xl shadow-xl p-6 flex flex-col justify-between h-full transition-all duration-300 ${
+        className={`w-full max-w-4xl bg-white rounded-2xl shadow-xl p-3 md:p-6 flex flex-col justify-between transition-all duration-300 ${
           !imgLoaded ? "opacity-0" : "opacity-100"
         }`}
       >
-        <h2 className="text-2xl font-bold text-green-900 border-b pb-3 w-full text-center">
+        <h2 className="text-xl md:text-2xl font-bold text-green-900 border-b pb-2 text-center">
           بيانات قطعة الأرض
         </h2>
 
-        <div className="flex flex-col md:flex-row gap-6 mt-4 flex-1">
-          <div className="flex justify-center md:justify-start">
+        <div className="flex flex-col md:flex-row gap-3 md:gap-6 mt-3 md:mt-4">
+          <div className="flex justify-center md:justify-start mb-3 md:mb-0">
             <QRCodeCanvas
               value={qrValue}
-              size={120}
+              size={70} // أصغر على الموبايل
               bgColor="transparent"
               fgColor="#14532d"
               level="H"
             />
           </div>
 
-          <div className="flex-1 grid grid-cols-2 gap-4">
+          <div className="flex-1 grid grid-cols-1 sm:grid-cols-2 gap-2 md:gap-4">
             {infoItems.map((item, idx) => (
               <div
                 key={idx}
-                className="bg-green-50 border border-green-200 rounded-lg p-3 flex flex-col shadow-sm"
+                className="bg-green-50 border border-green-200 rounded-lg p-2 md:p-3 flex flex-col shadow-sm break-words"
               >
-                <span className="text-sm font-semibold text-green-700">{item.label}</span>
+                <span className="text-xs md:text-sm font-semibold text-green-700">{item.label}</span>
                 <span
-                  className={`${item.colored ? getStatusColor() : "text-gray-900"} mt-1 font-medium break-words text-sm`}
+                  className={`${item.colored ? getStatusColor() : "text-gray-900"} mt-1 font-medium text-xs md:text-sm`}
                 >
                   {item.value}
                 </span>
@@ -162,22 +162,22 @@ export default function ScannedPlotPage({ plot }) {
                 alt="صورة قطعة الأرض"
                 crossOrigin="anonymous"
                 onLoad={() => setImgLoaded(true)}
-                className="w-full h-full object-cover rounded-lg"
+                className="w-full h-48 sm:h-60 md:h-full object-cover rounded-lg"
               />
             </div>
           </div>
         </div>
 
-        <div className="flex mt-4 justify-center gap-4">
+        <div className="flex mt-3 md:mt-4 flex-col sm:flex-row justify-center gap-2 sm:gap-4">
           <button
             onClick={() => navigate("/")}
-            className="px-5 py-2 bg-green-900 text-white rounded-lg shadow hover:bg-green-800 transition"
+            className="px-4 py-2 sm:px-5 sm:py-2 bg-green-900 text-white rounded-lg shadow hover:bg-green-800 transition text-sm md:text-base"
           >
             العودة للرئيسية
           </button>
           <button
             onClick={exportPDF}
-            className="px-5 py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition"
+            className="px-4 py-2 sm:px-5 sm:py-2 bg-red-600 text-white rounded-lg shadow hover:bg-red-700 transition text-sm md:text-base"
           >
             تصدير PDF
           </button>
@@ -185,20 +185,17 @@ export default function ScannedPlotPage({ plot }) {
       </div>
 
       {/* أنيميشن تكبير الصورة */}
-      {/* أنيميشن تكبير الصورة بسلاسة أكبر */}
-<style>
- {`
-  @keyframes scaleIn {
-    0%   { transform: scale(0.5); opacity: 0.8; }
-    100%  { transform: scale(1.5); opacity: 1; }
-    
-  }
-  .animate-scaleIn {
-    animation: scaleIn 0.6s ease-in  forwards;
-  }
-`}
-</style>
-
+      <style>
+        {`
+          @keyframes scaleIn {
+            0% { transform: scale(0.5); opacity: 0.8; }
+            100% { transform: scale(1); opacity: 1; }
+          }
+          .animate-scaleIn {
+            animation: scaleIn 0.5s ease-in forwards;
+          }
+        `}
+      </style>
     </div>
   );
 }

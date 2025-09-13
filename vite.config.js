@@ -7,11 +7,9 @@ export default defineConfig({
   server: {
     port: 5175,
   },
-<<<<<<< HEAD
+
   base: "/InteractiveMap/", 
-=======
-  base: "/InteractiveMap/", 
->>>>>>> f8a1c2c (Save local changes before pull)
+
 });
 
 

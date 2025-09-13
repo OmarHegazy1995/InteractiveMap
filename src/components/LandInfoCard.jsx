@@ -1,19 +1,20 @@
+// LandInfoCard.jsx
 import React from "react";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
 import { QRCodeCanvas } from "qrcode.react";
 
-const LandInfoCard = ({ selectedLand }) => {
+// مكون داخلي لمحتوى الكرت بدون fixed
+const LandInfoCardContent = ({ selectedLand }) => {
   if (!selectedLand) return null;
 
-  // keyMap محدث لتغطية كل الأسماء المحتملة
   const keyMap = {
     number: ["parcel_no", "number"],
     planNumber: ["PLAN_NUM", "planNumber"],
     status: ["status", "invested", "rent"],
     area: ["Shape_Area", "area"],
-    ACTIV: [ "ACTIV_NAME", "type_project", "project_type" , "main_activ", "ACTIV" ],
-    main_activ: [ "mainActivity", "primary_activity", "primaryActivity" , "ACTIV","main_activ"],
+    ACTIV: ["ACTIV_NAME", "type_project", "project_type", "main_activ", "ACTIV"],
+    main_activ: ["mainActivity", "primary_activity", "primaryActivity", "ACTIV","main_activ"],
     rent: ["rent", "rental"],
     dis_nam: ["dis_nam", "district_name", "neighborhood"],
   };
@@ -21,19 +22,10 @@ const LandInfoCard = ({ selectedLand }) => {
   const getValue = (key, defaultValue = "غير محدد") => {
     const possibleKeys = keyMap[key] || [];
     for (let k of possibleKeys) {
-      if (
-        selectedLand.properties &&
-        selectedLand.properties[k] !== undefined &&
-        selectedLand.properties[k] !== null &&
-        selectedLand.properties[k] !== ""
-      ) {
+      if (selectedLand.properties && selectedLand.properties[k] !== undefined && selectedLand.properties[k] !== null && selectedLand.properties[k] !== "") {
         return selectedLand.properties[k];
       }
-      if (
-        selectedLand[k] !== undefined &&
-        selectedLand[k] !== null &&
-        selectedLand[k] !== ""
-      ) {
+      if (selectedLand[k] !== undefined && selectedLand[k] !== null && selectedLand[k] !== "") {
         return selectedLand[k];
       }
     }
@@ -75,10 +67,7 @@ const LandInfoCard = ({ selectedLand }) => {
     const worksheet = XLSX.utils.json_to_sheet([exportData]);
     const workbook = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(workbook, worksheet, "Land Info");
-    const excelBuffer = XLSX.write(workbook, {
-      bookType: "xlsx",
-      type: "array",
-    });
+    const excelBuffer = XLSX.write(workbook, { bookType: "xlsx", type: "array" });
     const data = new Blob([excelBuffer], { type: "application/octet-stream" });
     saveAs(data, "land-info.xlsx");
   };
@@ -89,53 +78,54 @@ const LandInfoCard = ({ selectedLand }) => {
     { label: "الحي", value: getValue("dis_nam") },
     { label: "الحالة", value: getStatusText(), colored: true },
     { label: "المساحة", value: `${getValue("area")} م²` },
-   
     { label: "الإيجار", value: getRentText(), colored: true },
   ];
 
   const qrValue = getValue("number");
 
   return (
-    <div className="fixed bottom-4 right-4 w-[320px] bg-gradient-to-r from-green-800 to-green-600 text-white p-4 rounded-xl shadow-lg border border-green-900 z-[1000]">
+    <div className="w-full bg-gradient-to-r from-green-800 to-green-600 text-white p-4 rounded-xl shadow-lg border border-green-900">
       <h2 className="font-bold text-lg border-b border-green-300 pb-2 text-center">
         بيانات قطعة الأرض
       </h2>
 
       <div className="flex justify-center mt-3 mb-2">
-        <QRCodeCanvas
-          value={qrValue}
-          size={120}
-          bgColor="transparent"
-          fgColor="#fff"
-          level="H"
-        />
+        <QRCodeCanvas value={qrValue} size={120} bgColor="transparent" fgColor="#fff" level="H" />
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-2">
         {infoItems.map((item, idx) => (
-          <div
-            key={idx}
-            className="bg-green-700/40 border border-green-400 rounded-lg px-2 py-1 flex justify-between items-center text-sm"
-          >
+          <div key={idx} className="bg-green-700/40 border border-green-400 rounded-lg px-2 py-1 flex justify-between items-center text-sm">
             <span className="font-semibold">{item.label}</span>
-            <span
-              className={`${
-                item.colored ? getStatusColor() : "text-white"
-              } font-medium`}
-            >
-              {item.value}
-            </span>
+            <span className={`${item.colored ? getStatusColor() : "text-white"} font-medium`}>{item.value}</span>
           </div>
         ))}
       </div>
 
-      <button
-        onClick={exportToExcel}
-        className="mt-4 w-full bg-white text-green-800 font-semibold py-2 rounded-lg hover:bg-green-100 transition"
-      >
+      <button onClick={exportToExcel} className="mt-4 w-full bg-white text-green-800 font-semibold py-2 rounded-lg hover:bg-green-100 transition">
         تصدير إلى Excel
       </button>
     </div>
+  );
+};
+
+const LandInfoCard = ({ selectedLand }) => {
+  if (!selectedLand) return null;
+
+  return (
+    <>
+      {/* نسخة الديسكتوب: ثابتة */}
+      <div className="hidden sm:flex sm:justify-end sm:items-end sm:fixed sm:bottom-4 sm:right-4 z-[1000] w-[320px] sm:max-w-md">
+        <LandInfoCardContent selectedLand={selectedLand} />
+      </div>
+
+      {/* نسخة الموبايل: بعد الخريطة مباشرة */}
+      <div className="flex sm:hidden justify-center w-full mt-2 px-2">
+        <div className="w-full max-w-md">
+          <LandInfoCardContent selectedLand={selectedLand} />
+        </div>
+      </div>
+    </>
   );
 };
 

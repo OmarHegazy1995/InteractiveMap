@@ -29,10 +29,10 @@ export default function MainAppContent({ setScannedPlot }) {
 
   const [selectedPlot, setSelectedPlot] = useState(null);
   const [allPlots, setAllPlots] = useState([]);
+  const [showMobileFilter, setShowMobileFilter] = useState(false);
 
-  // تحميل البيانات
   useEffect(() => {
-    fetch("/data/lands.geojson")
+    fetch("/InteractiveMap/data/lands.geojson")
       .then((res) => {
         if (!res.ok) throw new Error(`HTTP error! status: ${res.status}`);
         return res.json();
@@ -50,7 +50,7 @@ export default function MainAppContent({ setScannedPlot }) {
             }
           }
           if (!coords.length || coords.some(([lat, lng]) => isNaN(lat) || isNaN(lng))) {
-            coords = [[30.986, 41.038]]; // fallback
+            coords = [[30.986, 41.038]];
           }
 
           return {
@@ -77,7 +77,6 @@ export default function MainAppContent({ setScannedPlot }) {
       .catch((err) => console.error("Error loading GeoJSON:", err));
   }, []);
 
-  // فلترة البيانات
   const filteredPlots = useMemo(() => {
     if (!allPlots || !Array.isArray(allPlots)) return [];
     return allPlots.filter((plot) => {
@@ -120,7 +119,6 @@ export default function MainAppContent({ setScannedPlot }) {
       : [];
   }, [filters.neighborhood, allPlots]);
 
-  // بيانات الرسوم البيانية
   const investmentStatusCounts = useMemo(() => {
     const counts = { مستثمر: 0, "غير مستثمر": 0, "قيد الطرح": 0 };
     selectedNeighborhoodPlots.forEach((p) => {
@@ -151,7 +149,7 @@ export default function MainAppContent({ setScannedPlot }) {
     const x = cx + radius * Math.cos(-midAngle * RADIAN);
     const y = cy + radius * Math.sin(-midAngle * RADIAN);
     return (
-      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="middle" fontSize="13" fontWeight="bold">
+      <text x={x} y={y} fill="white" textAnchor="middle" dominantBaseline="middle" fontSize="11" fontWeight="bold">
         {investmentStatusCounts[index]?.percentage || 0}%
       </text>
     );
@@ -170,54 +168,92 @@ export default function MainAppContent({ setScannedPlot }) {
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col">
       {/* Navbar مع الفلتر */}
-      <div className="w-full bg-green-900 h-14 flex items-center px-4 gap-4">
-        <img src="2.png" alt="شعار أمانة" className="h-10 object-contain" />
-        <FilterPanel
-          filters={filters}
-          onFilterChange={handleFilterChange}
-          onReset={handleResetFilters}
-          neighborhoods={neighborhoods}
-          horizontal
-        />
+      <div className="w-full bg-green-900 h-12 sm:h-14 flex items-center px-2 sm:px-4 gap-2 sm:gap-4 relative">
+        <img src="/InteractiveMap/2.png" alt="شعار أمانة" className="h-6 sm:h-10 object-contain" />
+        
+        <button
+          className="sm:hidden ml-auto text-white text-xl"
+          onClick={() => setShowMobileFilter(!showMobileFilter)}
+        >
+          ☰
+        </button>
+
+        <div className="hidden sm:flex flex-1">
+          <FilterPanel
+            filters={filters}
+            onFilterChange={handleFilterChange}
+            onReset={handleResetFilters}
+            neighborhoods={neighborhoods}
+            horizontal
+          />
+        </div>
+
+        {showMobileFilter && (
+          <div className="fixed top-12 left-0 w-full bg-green-800 z-[999999] p-2 sm:hidden">
+            <FilterPanel
+              filters={filters}
+              onFilterChange={handleFilterChange}
+              onReset={handleResetFilters}
+              neighborhoods={neighborhoods}
+              horizontal={false}
+            />
+         
+          </div>
+        )}
       </div>
 
-      {/* QR Scanner مؤقت */}
-      <div className="fixed top-20 right-4 z-[9999]">
+      {/* QR Scanner */}
+      <div className="fixed top-16 sm:top-20 right-2 sm:right-4 z-[9999]">
         <QRScannerFallback onScan={handleScan} />
       </div>
 
       {/* الخريطة */}
       <div className="flex-1 relative">
-        <div className="h-[calc(100vh-56px)]">
+        <div className="h-[calc(100vh-48px)] sm:h-[calc(100vh-56px)]">
           <MapView
             plots={filteredPlots.length ? filteredPlots : allPlots}
+            onSelect
             onSelectPlot={setSelectedPlot}
             selectedPlot={selectedPlot}
             use3D
-            animated // <-- هذا السطر يفعّل الحركة السلسة
+            animated
           />
         </div>
 
-        {/* كرت البيانات فوق الخريطة من تحت */}
-        {selectedPlot && (
-          <div className="absolute bottom-0 left-0 w-full flex justify-center z-[1000]">
-            <div className="w-full max-w-3xl px-4">
-              <LandInfoCard selectedLand={selectedPlot} />
-            </div>
-          </div>
-        )}
+    {/* كرت بيانات قطعة الأرض */}
+{selectedPlot && (
+  <>
+    {/* نسخة الديسكتوب: ثابت */}
+    <div className="hidden sm:flex sm:justify-end sm:items-end sm:fixed sm:bottom-4 sm:right-4 z-[1000]">
+      <div className="w-[320px] sm:max-w-md">
+        <LandInfoCard selectedLand={selectedPlot} />
+      </div>
+    </div>
+
+    {/* نسخة الموبايل: بعد الخريطة مباشرة */}
+    <div className="flex sm:hidden justify-center w-full mt-2">
+      <div className="w-full px-2">
+        <LandInfoCard selectedLand={selectedPlot} />
+      </div>
+    </div>
+  </>
+)}
+
+
+
       </div>
 
       {/* الرسوم البيانية */}
       {filters.neighborhood && !selectedPlot && (
         <div className="w-full border-t border-gray-200 bg-gray-50 px-2 sm:px-4 py-4 flex justify-center">
-          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 bg-white rounded-xl p-3 shadow-inner w-full max-w-5xl overflow-visible">
-            <div className="w-full md:w-1/2">
-              <h3 className="text-center font-semibold mb-2">توزيع أنواع المشاريع</h3>
-              <ResponsiveContainer width="100%" height={180}>
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 bg-white rounded-xl p-2 sm:p-3 shadow-inner w-full max-w-full sm:max-w-5xl overflow-x-auto">
+            {/* رسم شريطي */}
+            <div className="w-full md:w-1/2 min-w-[250px]">
+              <h3 className="text-center font-semibold mb-1 text-sm sm:text-base">توزيع أنواع المشاريع</h3>
+              <ResponsiveContainer width="100%" height={150}>
                 <BarChart data={barChartData || []}>
-                  <XAxis dataKey="name" />
-                  <YAxis domain={[0, 10]} allowDecimals={false} />
+                  <XAxis dataKey="name" tick={{ fontSize: 10 }} />
+                  <YAxis domain={[0, 10]} allowDecimals={false} tick={{ fontSize: 10 }} />
                   <Tooltip />
                   <Bar dataKey="value" radius={[4, 4, 0, 0]}>
                     {(barChartData || []).map((entry, index) => (
@@ -227,9 +263,11 @@ export default function MainAppContent({ setScannedPlot }) {
                 </BarChart>
               </ResponsiveContainer>
             </div>
-            <div className="w-full md:w-1/2 flex flex-col items-center mt-6 md:mt-0">
-              <h3 className="text-center font-semibold mb-2">حالة الاستثمار</h3>
-              <ResponsiveContainer width="100%" height={180}>
+
+            {/* رسم دائري */}
+            <div className="w-full md:w-1/2 min-w-[250px] flex flex-col items-center mt-4 md:mt-0">
+              <h3 className="text-center font-semibold mb-1 text-sm sm:text-base">حالة الاستثمار</h3>
+              <ResponsiveContainer width="100%" height={150}>
                 <PieChart>
                   <Pie
                     data={investmentStatusCounts || []}
@@ -237,7 +275,7 @@ export default function MainAppContent({ setScannedPlot }) {
                     nameKey="name"
                     cx="50%"
                     cy="50%"
-                    outerRadius={60}
+                    outerRadius={50}
                     label={renderCustomizedLabel}
                     labelLine={false}
                   >
@@ -248,11 +286,12 @@ export default function MainAppContent({ setScannedPlot }) {
                   <Tooltip />
                 </PieChart>
               </ResponsiveContainer>
-              <div className="flex justify-center mt-4 gap-4 flex-wrap">
+
+              <div className="flex justify-center mt-2 gap-2 flex-wrap text-xs sm:text-sm">
                 {(investmentStatusCounts || []).map((entry) => (
-                  <div key={entry.name} className="flex items-center gap-2 text-sm">
+                  <div key={entry.name} className="flex items-center gap-1 sm:gap-2">
                     <div
-                      className="w-4 h-4 rounded-full"
+                      className="w-3 h-3 sm:w-4 sm:h-4 rounded-full"
                       style={{ backgroundColor: COLORS[entry.name] || "#ccc" }}
                     ></div>
                     <span>{entry.name} ({entry.value || 0})</span>
