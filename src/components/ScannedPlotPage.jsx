@@ -49,7 +49,7 @@ export default function ScannedPlotPage({ plot }) {
     { label: "الحالة", value: getStatusText(), colored: true },
     { label: "المساحة (م²)", value: plot.area },
     { label: "نوع المشروع", value: plot.ACTIV || plot.projectType },
-    { label: "النشاط الرئيسي", value: plot.main_activ },
+    { label: "النشاط الرئيسي", value: plot.main_activ ||  plot.facilityType },
     { label: "الإيجار", value: plot.invested ? "مؤجر" : "غير مؤجر", colored: true },
     {
       label: "الإحداثيات",

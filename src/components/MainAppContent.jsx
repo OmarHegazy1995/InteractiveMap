@@ -81,12 +81,9 @@ export default function MainAppContent({ setScannedPlot }) {
   const filteredPlots = useMemo(() => {
     if (!allPlots || !Array.isArray(allPlots)) return [];
     return allPlots.filter((plot) => {
-      const matchesNeighborhood =
-        !filters.neighborhood || (plot.neighborhood && plot.neighborhood.includes(filters.neighborhood));
-      const matchesStatus =
-        !filters.investmentStatus || plot.status === filters.investmentStatus;
-      const matchesProjectType =
-        !filters.projectType || plot.projectType === filters.projectType;
+      const matchesNeighborhood = !filters.neighborhood || (plot.neighborhood && plot.neighborhood.includes(filters.neighborhood));
+      const matchesStatus = !filters.investmentStatus || plot.status === filters.investmentStatus;
+      const matchesProjectType = !filters.projectType || plot.projectType === filters.projectType;
       const area = parseFloat(plot.area) || 0;
       const minArea = filters.minArea ? parseFloat(filters.minArea) : 0;
       const maxArea = filters.maxArea ? parseFloat(filters.maxArea) : Infinity;
@@ -160,7 +157,6 @@ export default function MainAppContent({ setScannedPlot }) {
     );
   };
 
-  // مسح الباركود
   const handleScan = (scannedNumber) => {
     const foundPlot = allPlots.find((p) => p.number === scannedNumber);
     if (foundPlot) {
@@ -186,85 +182,87 @@ export default function MainAppContent({ setScannedPlot }) {
       </div>
 
       {/* QR Scanner مؤقت */}
-<div className="fixed top-20 right-4 z-[9999]">
-  <QRScannerFallback onScan={handleScan} />
-</div>
-
+      <div className="fixed top-20 right-4 z-[9999]">
+        <QRScannerFallback onScan={handleScan} />
+      </div>
 
       {/* الخريطة */}
-      <div className="flex-1">
+      <div className="flex-1 relative">
         <div className="h-[calc(100vh-56px)]">
           <MapView
-            plots={(filteredPlots.length ? filteredPlots : allPlots)}
+            plots={filteredPlots.length ? filteredPlots : allPlots}
             onSelectPlot={setSelectedPlot}
             selectedPlot={selectedPlot}
             use3D
+            animated // <-- هذا السطر يفعّل الحركة السلسة
           />
         </div>
 
-        {/* كرت قطعة الأرض العادي */}
+        {/* كرت البيانات فوق الخريطة من تحت */}
         {selectedPlot && (
-          <div className="w-full border-t border-gray-200 bg-gray-50 px-2 sm:px-4 py-4 flex justify-center">
-            <LandInfoCard selectedLand={selectedPlot} />
-          </div>
-        )}
-
-        {/* الرسوم البيانية */}
-        {filters.neighborhood && !selectedPlot && (
-          <div className="w-full border-t border-gray-200 bg-gray-50 px-2 sm:px-4 py-4 flex justify-center">
-            <div className="flex flex-col md:flex-row gap-3 sm:gap-4 bg-white rounded-xl p-3 shadow-inner w-full max-w-5xl overflow-visible">
-              <div className="w-full md:w-1/2">
-                <h3 className="text-center font-semibold mb-2">توزيع أنواع المشاريع</h3>
-                <ResponsiveContainer width="100%" height={180}>
-                  <BarChart data={barChartData || []}>
-                    <XAxis dataKey="name" />
-                    <YAxis domain={[0, 10]} allowDecimals={false} />
-                    <Tooltip />
-                    <Bar dataKey="value" radius={[4, 4, 0, 0]}>
-                      {(barChartData || []).map((entry, index) => (
-                        <Cell key={`cell-bar-${index}`} fill={barColors[entry.name] || "#8884d8"} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
-              <div className="w-full md:w-1/2 flex flex-col items-center mt-6 md:mt-0">
-                <h3 className="text-center font-semibold mb-2">حالة الاستثمار</h3>
-                <ResponsiveContainer width="100%" height={180}>
-                  <PieChart>
-                    <Pie
-                      data={investmentStatusCounts || []}
-                      dataKey="value"
-                      nameKey="name"
-                      cx="50%"
-                      cy="50%"
-                      outerRadius={60}
-                      label={renderCustomizedLabel}
-                      labelLine={false}
-                    >
-                      {(investmentStatusCounts || []).map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={COLORS[entry.name] || "#ccc"} />
-                      ))}
-                    </Pie>
-                    <Tooltip />
-                  </PieChart>
-                </ResponsiveContainer>
-                <div className="flex justify-center mt-4 gap-4 flex-wrap">
-                  {(investmentStatusCounts || []).map((entry) => (
-                    <div key={entry.name} className="flex items-center gap-2 text-sm">
-                      <div
-                        className="w-4 h-4 rounded-full"
-                        style={{ backgroundColor: COLORS[entry.name] || "#ccc" }}
-                      ></div>
-                      <span>{entry.name} ({entry.value || 0})</span>
-                    </div>
-                  ))}
-                </div>
-              </div>
+          <div className="absolute bottom-0 left-0 w-full flex justify-center z-[1000]">
+            <div className="w-full max-w-3xl px-4">
+              <LandInfoCard selectedLand={selectedPlot} />
             </div>
           </div>
         )}
       </div>
+
+      {/* الرسوم البيانية */}
+      {filters.neighborhood && !selectedPlot && (
+        <div className="w-full border-t border-gray-200 bg-gray-50 px-2 sm:px-4 py-4 flex justify-center">
+          <div className="flex flex-col md:flex-row gap-3 sm:gap-4 bg-white rounded-xl p-3 shadow-inner w-full max-w-5xl overflow-visible">
+            <div className="w-full md:w-1/2">
+              <h3 className="text-center font-semibold mb-2">توزيع أنواع المشاريع</h3>
+              <ResponsiveContainer width="100%" height={180}>
+                <BarChart data={barChartData || []}>
+                  <XAxis dataKey="name" />
+                  <YAxis domain={[0, 10]} allowDecimals={false} />
+                  <Tooltip />
+                  <Bar dataKey="value" radius={[4, 4, 0, 0]}>
+                    {(barChartData || []).map((entry, index) => (
+                      <Cell key={`cell-bar-${index}`} fill={barColors[entry.name] || "#8884d8"} />
+                    ))}
+                  </Bar>
+                </BarChart>
+              </ResponsiveContainer>
+            </div>
+            <div className="w-full md:w-1/2 flex flex-col items-center mt-6 md:mt-0">
+              <h3 className="text-center font-semibold mb-2">حالة الاستثمار</h3>
+              <ResponsiveContainer width="100%" height={180}>
+                <PieChart>
+                  <Pie
+                    data={investmentStatusCounts || []}
+                    dataKey="value"
+                    nameKey="name"
+                    cx="50%"
+                    cy="50%"
+                    outerRadius={60}
+                    label={renderCustomizedLabel}
+                    labelLine={false}
+                  >
+                    {(investmentStatusCounts || []).map((entry, index) => (
+                      <Cell key={`cell-${index}`} fill={COLORS[entry.name] || "#ccc"} />
+                    ))}
+                  </Pie>
+                  <Tooltip />
+                </PieChart>
+              </ResponsiveContainer>
+              <div className="flex justify-center mt-4 gap-4 flex-wrap">
+                {(investmentStatusCounts || []).map((entry) => (
+                  <div key={entry.name} className="flex items-center gap-2 text-sm">
+                    <div
+                      className="w-4 h-4 rounded-full"
+                      style={{ backgroundColor: COLORS[entry.name] || "#ccc" }}
+                    ></div>
+                    <span>{entry.name} ({entry.value || 0})</span>
+                  </div>
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

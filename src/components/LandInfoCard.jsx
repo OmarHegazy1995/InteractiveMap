@@ -6,13 +6,14 @@ import { QRCodeCanvas } from "qrcode.react";
 const LandInfoCard = ({ selectedLand }) => {
   if (!selectedLand) return null;
 
+  // keyMap محدث لتغطية كل الأسماء المحتملة
   const keyMap = {
     number: ["parcel_no", "number"],
     planNumber: ["PLAN_NUM", "planNumber"],
-    status: ["status", "invested"],
+    status: ["status", "invested", "rent"],
     area: ["Shape_Area", "area"],
-    ACTIV: ["ACTIV", "ACTIV_NAME", "type_project"],
-    main_activ: ["main_activ", "mainActivity", "primary_activity"],
+    ACTIV: [ "ACTIV_NAME", "type_project", "project_type" , "main_activ", "ACTIV" ],
+    main_activ: [ "mainActivity", "primary_activity", "primaryActivity" , "ACTIV","main_activ"],
     rent: ["rent", "rental"],
     dis_nam: ["dis_nam", "district_name", "neighborhood"],
   };
@@ -65,8 +66,8 @@ const LandInfoCard = ({ selectedLand }) => {
       "رقم المخطط": getValue("planNumber"),
       "الحالة": getStatusText(),
       "المساحة (م²)": getValue("area"),
-      "نوع المشروع": getValue("ACTIV"),
-      "النشاط الرئيسي": getValue("main_activ"),
+      "نوع المشروع": getValue("main_activ"),
+      "النشاط الرئيسي": getValue("ACTIV"),
       "الإيجار": getRentText(),
       "الحي": getValue("dis_nam"),
     };
@@ -88,23 +89,26 @@ const LandInfoCard = ({ selectedLand }) => {
     { label: "الحي", value: getValue("dis_nam") },
     { label: "الحالة", value: getStatusText(), colored: true },
     { label: "المساحة", value: `${getValue("area")} م²` },
-    { label: "نوع المشروع", value: getValue("ACTIV") },
-    { label: "النشاط الرئيسي", value: getValue("main_activ") },
+   
     { label: "الإيجار", value: getRentText(), colored: true },
   ];
 
-  // QR Code خاص بكل قطعة، يستخدم رقم القطعة كمفتاح
   const qrValue = getValue("number");
 
   return (
-    <div className="absolute bottom-4 right-4 w-72 bg-gradient-to-r from-green-800 to-green-600 text-white p-4 rounded-xl shadow-lg border border-green-900 z-[9999]">
+    <div className="fixed bottom-4 right-4 w-[320px] bg-gradient-to-r from-green-800 to-green-600 text-white p-4 rounded-xl shadow-lg border border-green-900 z-[1000]">
       <h2 className="font-bold text-lg border-b border-green-300 pb-2 text-center">
         بيانات قطعة الأرض
       </h2>
 
-      {/* QR Code برقم القطعة فقط */}
       <div className="flex justify-center mt-3 mb-2">
-        <QRCodeCanvas value={qrValue} size={120} bgColor="transparent" fgColor="#fff" level="H" />
+        <QRCodeCanvas
+          value={qrValue}
+          size={120}
+          bgColor="transparent"
+          fgColor="#fff"
+          level="H"
+        />
       </div>
 
       <div className="mt-3 grid grid-cols-1 gap-2">
@@ -115,7 +119,9 @@ const LandInfoCard = ({ selectedLand }) => {
           >
             <span className="font-semibold">{item.label}</span>
             <span
-              className={`${item.colored ? getStatusColor() : "text-white"} font-medium`}
+              className={`${
+                item.colored ? getStatusColor() : "text-white"
+              } font-medium`}
             >
               {item.value}
             </span>
